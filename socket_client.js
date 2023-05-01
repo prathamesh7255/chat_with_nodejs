@@ -1,4 +1,5 @@
 const io_client=require('socket.io-client');
+const io_server=require('./socket_server');
 
 const socket=io_client()
 
