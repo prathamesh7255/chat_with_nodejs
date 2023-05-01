@@ -1,6 +1,6 @@
-let io=require('./socket_server');
+const io_client=require('socket.io_client');
 
-const socket=io()
+const socket=io_client()
 
 socket.on('new_user',()=>{
     const username=prompt('Please enter your username: ');
@@ -46,7 +46,8 @@ socket.on('create',()=>{
     })
 })
 
-socket.on('join',(room)=>{
+socket.on('join',()=>{
+    const room=prompt('Please enter the room ID you want to join: ');
     socket.emit('join_room',room);
 })
 

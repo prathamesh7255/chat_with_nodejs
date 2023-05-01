@@ -1,10 +1,9 @@
-const express=require('express');
-const app=express();
+const express=require('express')
+const router=express.Router();
+const socket_client=require('./socket_client');
+const io_server=require('./socket_server');
 
-let socket_client=require('./socket_client');
-let io_server=require('./socket_server');
-
-app.get('/',(req,res)=>{
+router.get('/',(req,res)=>{
     io_server.emit('connection',(socket_client));
     res.json(`<h1>Welcome Home, buddy!</h1>
     <p>New user?</p>
@@ -13,9 +12,9 @@ app.get('/',(req,res)=>{
     <a href="/login">Login</a>`);
 });
 
-app.get('/signup',(req,res)=>{
+router.get('/signup',(req,res)=>{
     socket_client.emit('new_user');
-    res.json(`
+    res.send(`
     Please fill in the details given below`);
 
     socket_client.on('new_user',(status)=>{
@@ -25,42 +24,41 @@ app.get('/signup',(req,res)=>{
     })
 })
 
-app.get('/login',(req,res)=>{
+router.get('/login',(req,res)=>{
     socket_client.emit('old_user');
-    res.json(`
+    res.send(`
     Please fill in your credentials`);
 
     socket_client.on('old_user',(status)=>{
         if(status.succ){
             res.json(`Logged in successfully`);
             const username=status.username;
-            res.redirect(`/${username}`)
+            res.redirect(`/${username}`);
         }
         res.json(status.err);
         })
 })
 
-app.get('/:username',(req,res)=>{
+router.get('/:username',(req,res)=>{
     io_server.emit('logged',socket_client);
-    const username=req.body;
+    const username=req.params.username;
     res.json(`<h1>Please select among the following options</h1>
     <a href="/${username}/create">Create New Room</a>
     <a href="/${username}/join">Join Room</a>
     "`);
 })
 
-app.get('/:username/create',(req,res)=>{
-    const username=req.body;
+router.get('/:username/create',(req,res)=>{
+    const username=req.params.username;
     socket_client.emit('create',username);
     socket_client.on('create',(status)=>{
         res.json(status);
     })
 })
 
-app.get('/:username/join',(req,res)=>{
-    const username=req.body;
-    const room =prompt(`Please enter the room id you want to join`);
-    socket_client.emit('join',(room));
+router.get('/:username/join',(req,res)=>{
+    const username=req.params.username;
+    socket_client.emit('join');
     socket_client.on('join',(status)=>{
         if(status.succ){
             res.json(status.err);
@@ -70,7 +68,7 @@ app.get('/:username/join',(req,res)=>{
     })
 })
 
-app.get('/:username/:room/leave',(req,res)=>{
+router.get('/:username/:room/leave',(req,res)=>{
     const username=req.params.username;
     const room=req.params.room;
     socket_client.emit('leave',(room,username));
@@ -83,13 +81,15 @@ app.get('/:username/:room/leave',(req,res)=>{
     })
 })
 
-app.get('/:username/logout',(req,res)=>{
-    const username=req.body;
+router.get('/:username/logout',(req,res)=>{
+    const username=req.params.username;
     socket_client.emit('signout',(username));
     res.json(`Logged out successfully`)
     res.redirect('/');
 
 })
+
+module.exports=router
 
 
 

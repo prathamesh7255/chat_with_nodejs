@@ -1,9 +1,10 @@
 const fs=require('fs')
 let {users,arr,rooms}=require('./users')
-const io=require('./app');
+const io=require('socket.io');
 const path=require('path');
+const io_server=io();
 
-io.on('connection',(socket)=>{
+io_server.on('connection',(socket)=>{
     console.log(`User connected!`);
 
     socket.on('signup',(data)=>{
@@ -53,7 +54,6 @@ io.on('connection',(socket)=>{
             }
         }
 
-        const details={username,socket};
         return {
             err:`Welcome ${username}!`,
             succ:true,
@@ -63,7 +63,7 @@ io.on('connection',(socket)=>{
     })
 });
 
-io.on('logged',(socket)=>{
+io_server.on('logged',(socket)=>{
     console.log('A user just logged in!');
 
     socket.on('create_room',()=>{
@@ -127,5 +127,5 @@ io.on('logged',(socket)=>{
 
 });
 
-module.exports=io
+module.exports=io_server
 
