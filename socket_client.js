@@ -27,6 +27,7 @@ socket.on('old_user',()=>{
 
 socket.on('send_msg',(room)=>{
 const messageForm=document.querySelector('message');
+//message event is not ctreated yet as it needs knowledge of frontend
     messageForm.addEventListener('submit',(event)=>{
         event.preventDefault();
         const input=document.querySelector('input');
